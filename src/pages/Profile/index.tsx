@@ -8,7 +8,7 @@ import { APIRepo, APIUser } from '../../@types';
 
 import { Container,RepoIcon, Tab,Main,LeftSide,RightSide,Repos,CalendarHeading } from './styles';
 
-interface Data {
+export interface Data {
   user ?: APIUser;
   repos?: APIRepo[];
   error?: string;

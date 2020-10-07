@@ -1,5 +1,6 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { APIRepo } from '../../@types';
 
 import { 
   Container, 
@@ -13,36 +14,60 @@ import {
 } from './styles';
 
 const Repo: React.FC = () => {
+  const { username, reponame } = useParams();
+
+  const [ data, setData ] = useState<APIRepo>();
+
+  useEffect(() => {
+    Promise.all([
+      fetch(`https://api.github.com/repos/${username}/${reponame}`),
+    ]).then( async (response) => {
+
+      // if(response.data === 404){
+      //   setData({error: 'User not found'});
+      //   return;
+      // }
+
+      const repo = await response[0].json();
+      
+      setData(repo)
+    })
+  },[reponame, username]);
+
+  if(!data?.name){
+    return <h1>Loading...</h1>
+  }
+  
   return (
     <Container>
       <Breadcrumb>
         <RepoIcon />
-        <Link className={'username'} to={`/gabrielpdev`}>gabrielpdev</Link>
+        <Link className={'username'} to={`/${data.owner.login}`}>{data.owner.login}</Link>
 
         <span>/</span>
 
-        <Link className={'reponame'} to={`/gabrielpdev/nomeDoRepo`}>
-          Nome do repositorio
+        <Link className={'reponame'} to={``}>
+          {data.name}
         </Link>
       </Breadcrumb>
 
-      <p>Descrição do repositorio</p>
+      <p>{data.description}</p>
 
       <Stats>
         <li>
           <StarIcon />
-          <b>10</b>
+          <b>{data.stargazers_count}</b>
           <span>starts</span>
         </li>
 
         <li>
           <ForkIcon />
-          <b>1</b>
+          <b>{data.forks}</b>
           <span>forks</span>
         </li>
       </Stats>
 
-      <LinkButton href='https://github.com/gabrielpdev' >
+      <LinkButton href={`https://github.com/${data.owner.login}`} >
         <GithubIcon />
         <span>View on Github</span>
       </LinkButton>
